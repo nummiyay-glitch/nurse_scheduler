@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>看護師業務管理システム</title>
+  <title>看護師業務管理システム v2</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,11 +13,11 @@
   <div id="root"></div>
   
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useMemo } = React;
 
     // Icons
     const Calendar = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
         <line x1="16" y1="2" x2="16" y2="6"></line>
         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -26,7 +26,7 @@
     );
 
     const Users = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
         <circle cx="9" cy="7" r="4"></circle>
         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -35,14 +35,14 @@
     );
 
     const Clock = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"></circle>
         <polyline points="12 6 12 12 16 14"></polyline>
       </svg>
     );
 
     const AlertCircle = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -50,7 +50,7 @@
     );
 
     const RefreshCw = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <polyline points="23 4 23 10 17 10"></polyline>
         <polyline points="1 20 1 14 7 14"></polyline>
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -58,786 +58,785 @@
     );
 
     const Check = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
     );
 
-    const Trash2 = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        <line x1="10" y1="11" x2="10" y2="17"></line>
-        <line x1="14" y1="11" x2="14" y2="17"></line>
+    const AlertTriangle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
       </svg>
     );
 
-    const Plus = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-    );
-
-    const UserX = ({ className }) => (
-      <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="8.5" cy="7" r="4"></circle>
-        <line x1="18" y1="8" x2="23" y2="13"></line>
-        <line x1="23" y1="8" x2="18" y2="13"></line>
-      </svg>
-    );
-
-const NursingScheduleApp = () => {
-  const timeSlots = ['9-10', '10-11', '11-12', '12-13', '13-14', '14-15', '15-16'];
-  
-  const [nurses, setNurses] = useState([
-    { id: 1, name: 'A看護師1', type: 'A', breakStart: null, isAbsent: false },
-    { id: 2, name: 'A看護師2', type: 'A', breakStart: null, isAbsent: false },
-    { id: 3, name: 'A看護師3', type: 'A', breakStart: null, isAbsent: false },
-    { id: 4, name: 'A看護師4', type: 'A', breakStart: null, isAbsent: false },
-    { id: 5, name: 'B看護師1', type: 'B', breakStart: null, isAbsent: false },
-    { id: 6, name: 'B看護師2', type: 'B', breakStart: null, isAbsent: false },
-    { id: 7, name: 'B看護師3', type: 'B', breakStart: null, isAbsent: false },
-    { id: 8, name: 'B看護師4', type: 'B', breakStart: null, isAbsent: false },
-  ]);
-
-  const [schedule, setSchedule] = useState({});
-  const [mainLeaderId, setMainLeaderId] = useState(1);
-  const [validationErrors, setValidationErrors] = useState([]);
-  const [breakStartTime, setBreakStartTime] = useState(11);
-  const [nextNurseId, setNextNurseId] = useState(9);
-
-  const generateSchedule = () => {
-    console.clear();
-    console.log('========================================');
-    console.log('スケジュール生成開始');
-    console.log('========================================');
-    
-    const newSchedule = {};
-    const errors = [];
-    
-    const workingNurses = nurses.filter(n => !n.isAbsent);
-    const absentNurses = nurses.filter(n => n.isAbsent);
-    
-    console.log('出勤者:', workingNurses.length, '人');
-    console.log('休務者:', absentNurses.length, '人', absentNurses.map(n => n.name));
-    
-    if (workingNurses.length < 6) {
-      errors.push(`出勤者が${workingNurses.length}人で不足しています（最低6人必要）`);
-      setValidationErrors(errors);
-      return;
-    }
-    
-    if (workingNurses.length < 8) {
-      console.warn(`⚠️ 出勤者が${workingNurses.length}人です。通常は8人推奨ですが、スケジュールを生成します。`);
-      errors.push(`出勤者が${workingNurses.length}人です（推奨8人）。スケジュールは生成されますが、業務負担が増加する可能性があります。`);
-    }
-    
-    let mainLeader = workingNurses.find(n => n.id === mainLeaderId);
-    
-    if (!mainLeader || mainLeader.type !== 'A') {
-      const firstANurse = workingNurses.find(n => n.type === 'A');
-      if (firstANurse) {
-        setMainLeaderId(firstANurse.id);
-        mainLeader = firstANurse;
-      } else {
-        errors.push('出勤しているA看護師が1人以上必要です');
-        setValidationErrors(errors);
-        return;
-      }
-    }
-
-    console.log('メインリーダー:', mainLeader.name);
-
-    // 休憩時間を均等に配分
-    const updatedNurses = [...nurses];
-    const nonLeaderNurses = workingNurses.filter(n => n.id !== mainLeader.id);
-    
-    const breakTimes = breakStartTime === 11 ? [11, 12, 13, 14] : [12, 13, 14];
-    
-    const leaderInUpdated = updatedNurses.find(n => n.id === mainLeader.id);
-    leaderInUpdated.breakStart = breakTimes[0];
-    
-    const shuffledNonLeaders = [...nonLeaderNurses].sort(() => Math.random() - 0.5);
-    
-    // リーダー以外が0人の場合（ありえないがエッジケース）
-    if (shuffledNonLeaders.length === 0) {
-      errors.push('リーダー以外の看護師が必要です');
-      setValidationErrors(errors);
-      return;
-    }
-    
-    // 1人目：リーダーと一緒に休憩
-    const nurseInUpdated0 = updatedNurses.find(n => n.id === shuffledNonLeaders[0].id);
-    nurseInUpdated0.breakStart = breakTimes[0];
-    
-    // 残りを2番目以降の時間帯に均等配分
-    const remainingBreakTimes = breakTimes.slice(1);
-    for (let i = 1; i < shuffledNonLeaders.length; i++) {
-      const nurseInUpdated = updatedNurses.find(n => n.id === shuffledNonLeaders[i].id);
-      nurseInUpdated.breakStart = remainingBreakTimes[(i - 1) % remainingBreakTimes.length];
-    }
-    
-    console.log('休憩配分:');
-    breakTimes.forEach(time => {
-      const nursesAtThisTime = updatedNurses.filter(n => n.breakStart === time && !n.isAbsent);
-      console.log(`  ${time}時: ${nursesAtThisTime.length}人`, nursesAtThisTime.map(n => n.name));
-    });
-    
-    setNurses(updatedNurses);
-    
-    // 休憩配分後にbreakTimeMapを計算
-    const breakTimeMap = {};
-    updatedNurses.forEach(nurse => {
-      if (nurse.isAbsent) return; // 休務者は除外
-      let breakSlotIndex;
-      if (nurse.breakStart === 11) breakSlotIndex = 2;
-      else if (nurse.breakStart === 12) breakSlotIndex = 3;
-      else if (nurse.breakStart === 13) breakSlotIndex = 4;
-      else if (nurse.breakStart === 14) breakSlotIndex = 5;
-      if (breakSlotIndex !== undefined) {
-        breakTimeMap[nurse.id] = breakSlotIndex;
-      }
-    });
-    
-    console.log('\n休憩配分確認:');
-    updatedNurses.filter(n => !n.isAbsent).forEach(n => {
-      console.log(`${n.name}: ${n.breakStart}時休憩 (slotIdx=${breakTimeMap[n.id]})`);
-    });
-
-    // 各看護師のスケジュールマップ作成
-    const nurseScheduleMap = {};
-    workingNurses.forEach(n => {
-      nurseScheduleMap[n.id] = new Array(7).fill(null);
-    });
-
-    console.log('\n--- ステップ1: 休憩とリーダー配置 ---');
-    
-    // 休務者チェックと事前準備
-    const hasAbsent = absentNurses.length > 0;
-    const bNurses = workingNurses.filter(n => n.type === 'B');
-    const aNursesNonLeader = workingNurses.filter(n => n.type === 'A' && n.id !== mainLeader.id);
-    
-    // 代理リーダーを決定（休務者がいない場合のみ）
-    let deputyLeaderNurse = null;
-    if (!hasAbsent && aNursesNonLeader.length > 0) {
-      deputyLeaderNurse = aNursesNonLeader[0];
-      console.log(`代理リーダー候補: ${deputyLeaderNurse.name}`);
-    }
-    
-    // 休憩を記録（全員分）
-    console.log('\n休憩記録開始:');
-    workingNurses.forEach(nurse => {
-      const slotIndex = breakTimeMap[nurse.id];
-      if (slotIndex !== undefined) {
-        nurseScheduleMap[nurse.id][slotIndex] = '休憩';
-        console.log(`${nurse.name}: slotIdx=${slotIndex}に休憩を記録`);
-      } else {
-        console.error(`⚠️ ${nurse.name}: 休憩時間が設定されていません！`);
-      }
-    });
-
-    // リーダーを配置
-    for (let idx = 0; idx < 7; idx++) {
-      if (nurseScheduleMap[mainLeader.id][idx] === null) {
-        nurseScheduleMap[mainLeader.id][idx] = 'リーダー';
-      } else if (nurseScheduleMap[mainLeader.id][idx] === '休憩') {
-        // 休務者がいない場合：代理リーダーを配置
-        if (!hasAbsent && deputyLeaderNurse) {
-          nurseScheduleMap[deputyLeaderNurse.id][idx] = '代理リーダー';
-          console.log(`slotIdx=${idx}に代理リーダー: ${deputyLeaderNurse.name}`);
-        } else {
-          // 休務者がいる場合：代理リーダーは18スロット配分に参加しているので、
-          // リーダー休憩時は別のA看護師を代理に
-          const availableA = workingNurses.filter(n => 
-            n.type === 'A' && 
-            n.id !== mainLeader.id && 
-            nurseScheduleMap[n.id][idx] === null
-          );
-          if (availableA.length > 0) {
-            nurseScheduleMap[availableA[0].id][idx] = '代理リーダー';
-            console.log(`slotIdx=${idx}に代理リーダー: ${availableA[0].name}`);
-          }
-        }
-      }
-    }
-    
-    console.log(`${mainLeader.name}のスケジュール:`, nurseScheduleMap[mainLeader.id]);
-
-    console.log('\n--- ステップ2: コアタイム（9-15時）18スロットを配分 ---');
-    
-    // コアタイム：9-15時（slotIdx 0-5）
-    const coreTimeSlots = [0, 1, 2, 3, 4, 5];
-    const totalSlots = coreTimeSlots.length * 3; // 6時間 × 3スロット = 18スロット
-    
-    console.log(`コアタイム: 9-15時（${coreTimeSlots.length}時間）`);
-    console.log(`必要スロット数: ${totalSlots}スロット（穿刺2 + 継続看護1）× ${coreTimeSlots.length}時間`);
-    console.log('出勤B看護師:', bNurses.length, '人', bNurses.map(n => n.name));
-    console.log('出勤A看護師（リーダー以外）:', aNursesNonLeader.length, '人', aNursesNonLeader.map(n => n.name));
-    
-    // 配分対象看護師を決定
-    let assignmentNurses = [];
-    
-    if (hasAbsent) {
-      // 休務者がいる場合：代理リーダーも配分に参加
-      assignmentNurses = [...bNurses, ...aNursesNonLeader];
-      console.log('⚠️ 休務者あり：代理リーダーも18スロット配分に参加します');
-    } else {
-      // 休務者がいない場合：代理リーダーを除外
-      if (deputyLeaderNurse) {
-        assignmentNurses = [...bNurses, ...aNursesNonLeader.filter(n => n.id !== deputyLeaderNurse.id)];
-        console.log(`代理リーダー: ${deputyLeaderNurse.name}（18スロット配分から除外）`);
-      } else {
-        assignmentNurses = [...bNurses, ...aNursesNonLeader];
-      }
-    }
-    
-    console.log('18スロット配分対象:', assignmentNurses.length, '人', assignmentNurses.map(n => n.name));
-    
-    if (assignmentNurses.length === 0) {
-      errors.push('配分対象の看護師が不足しています');
-      setValidationErrors(errors);
-      return;
-    }
-    
-    // 各看護師の目標スロット数（均等配分）
-    const slotsPerNurse = Math.floor(totalSlots / assignmentNurses.length);
-    const extraSlots = totalSlots % assignmentNurses.length;
-    
-    console.log(`1人あたり基本スロット数: ${slotsPerNurse}スロット`);
-    console.log(`余りスロット: ${extraSlots}スロット`);
-    
-    // 各看護師のスロットカウント（穿刺・継続看護別）
-    const nurseSlotCount = {};
-    const senshiCount = {};
-    const keizokuCount = {};
-    assignmentNurses.forEach(n => {
-      nurseSlotCount[n.id] = 0;
-      senshiCount[n.id] = 0;
-      keizokuCount[n.id] = 0;
-    });
-    
-    // 配置順序を決定：休憩時間近傍から優先
-    // 休憩開始時刻が12時なら、12-13時（slotIdx=3）が最も人が少ない
-    // 休憩開始時刻が11時なら、11-12時（slotIdx=2）が最も人が少ない
-    let priorityOrder;
-    if (breakStartTime === 12) {
-      // 12時休憩：12-13時 → 13-14時 → 14-15時 → 11-12時 → 10-11時 → 9-10時
-      priorityOrder = [3, 4, 5, 2, 1, 0];
-    } else {
-      // 11時休憩：11-12時 → 12-13時 → 13-14時 → 10-11時 → 14-15時 → 9-10時
-      priorityOrder = [2, 3, 4, 1, 5, 0];
-    }
-    
-    console.log(`配置順序（休憩時間${breakStartTime}時から優先）:`, priorityOrder.map(i => timeSlots[i]));
-    
-    // コアタイムの各時間帯に穿刺2人・継続看護1人を配置（優先順序に従う）
-    for (let slotIdx of priorityOrder) {
-      console.log(`\n時間帯 ${timeSlots[slotIdx]} の配置`);
+    const NursingScheduleApp = () => {
+      // 時間帯: 9-17時（8枠）
+      const timeSlots = ['9-10', '10-11', '11-12', '12-13', '13-14', '14-15', '15-16', '16-17'];
+      const slotToIndex = { '9-10': 0, '10-11': 1, '11-12': 2, '12-13': 3, '13-14': 4, '14-15': 5, '15-16': 6, '16-17': 7 };
       
-      // この時間帯で利用可能な看護師
-      const available = assignmentNurses.filter(n => 
-        nurseScheduleMap[n.id][slotIdx] === null
+      // 初期看護師リスト: A=5人、B=2人、C=2人
+      const [nurses, setNurses] = useState([
+        { id: 1, name: 'A1', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
+        { id: 2, name: 'A2', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
+        { id: 3, name: 'A3', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
+        { id: 4, name: 'A4', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
+        { id: 5, name: 'A5(時短)', type: 'A', isShortTime: true, isLateStart: false, isAbsent: false },
+        { id: 6, name: 'B1', type: 'B', isShortTime: false, isLateStart: false, isAbsent: false },
+        { id: 7, name: 'B2(時短)', type: 'B', isShortTime: true, isLateStart: false, isAbsent: false },
+        { id: 8, name: 'C1', type: 'C', isShortTime: false, isLateStart: false, isAbsent: false },
+        { id: 9, name: 'C2(時短)', type: 'C', isShortTime: true, isLateStart: false, isAbsent: false },
+      ]);
+
+      const [schedule, setSchedule] = useState({});
+      const [mainLeaderId, setMainLeaderId] = useState(1);
+      const [validationErrors, setValidationErrors] = useState([]);
+      const [supportNeeded, setSupportNeeded] = useState({});
+      const [scheduleGenerated, setScheduleGenerated] = useState(false);
+      const [breakStartTime, setBreakStartTime] = useState(11); // 11時または12時開始
+      const [selectedCell, setSelectedCell] = useState(null); // 入れ替え用選択セル
+      const [nurseScheduleMap, setNurseScheduleMap] = useState({}); // 個別スケジュール管理
+
+      // 遅出看護師の数
+      const lateStartCount = useMemo(() => 
+        nurses.filter(n => n.isLateStart && !n.isAbsent).length, 
+        [nurses]
       );
-      
-      console.log(`利用可能: ${available.map(n => n.name).join(', ')}`);
-      
-      // 穿刺2人を配置（穿刺2時間まで、スロット数が少ない順）
-      const senshiCandidates = available
-        .filter(n => senshiCount[n.id] < 2)
-        .sort((a, b) => {
-          // まず穿刺カウントが少ない順
-          if (senshiCount[a.id] !== senshiCount[b.id]) {
-            return senshiCount[a.id] - senshiCount[b.id];
-          }
-          // 次に総スロット数が少ない順
-          return nurseSlotCount[a.id] - nurseSlotCount[b.id];
-        });
-      
-      for (let i = 0; i < Math.min(2, senshiCandidates.length); i++) {
-        const nurse = senshiCandidates[i];
-        nurseScheduleMap[nurse.id][slotIdx] = '穿刺';
-        nurseSlotCount[nurse.id]++;
-        senshiCount[nurse.id]++;
-        console.log(`${nurse.name}を穿刺に配置（穿刺${senshiCount[nurse.id]}h, 合計${nurseSlotCount[nurse.id]}スロット）`);
-      }
-      
-      // 継続看護1人を配置（継続看護1時間まで、穿刺配置済みを除く、スロット数が少ない順）
-      const keizokuCandidates = available
-        .filter(n => 
-          nurseScheduleMap[n.id][slotIdx] !== '穿刺' &&
-          keizokuCount[n.id] < 1
-        )
-        .sort((a, b) => {
-          // まず継続看護カウントが少ない順
-          if (keizokuCount[a.id] !== keizokuCount[b.id]) {
-            return keizokuCount[a.id] - keizokuCount[b.id];
-          }
-          // 次に総スロット数が少ない順
-          return nurseSlotCount[a.id] - nurseSlotCount[b.id];
-        });
-      
-      if (keizokuCandidates.length > 0) {
-        const nurse = keizokuCandidates[0];
-        nurseScheduleMap[nurse.id][slotIdx] = '継続看護';
-        nurseSlotCount[nurse.id]++;
-        keizokuCount[nurse.id]++;
-        console.log(`${nurse.name}を継続看護に配置（継続看護${keizokuCount[nurse.id]}h, 合計${nurseSlotCount[nurse.id]}スロット）`);
-      } else {
-        console.error(`⚠️ ${timeSlots[slotIdx]}: 継続看護を配置できる人がいません！`);
-        errors.push(`${timeSlots[slotIdx]}: 継続看護を配置できる人がいません`);
-      }
-    }
-    
-    console.log('\n--- コアタイム配分結果 ---');
-    assignmentNurses.forEach(nurse => {
-      console.log(`${nurse.name}: 穿刺${senshiCount[nurse.id]}h, 継続看護${keizokuCount[nurse.id]}h, 合計${nurseSlotCount[nurse.id]}スロット`);
-    });
-    
-    // 15-16時（slotIdx 6）：A看護師のみで配置
-    console.log('\n--- 15-16時の配置（A看護師のみ） ---');
-    
-    const slot15_16 = 6;
-    
-    // A看護師の穿刺・継続看護カウントを初期化（もしまだなければ）
-    aNursesNonLeader.forEach(n => {
-      if (senshiCount[n.id] === undefined) senshiCount[n.id] = 0;
-      if (keizokuCount[n.id] === undefined) keizokuCount[n.id] = 0;
-    });
-    
-    const availableA = aNursesNonLeader.filter(n => 
-      nurseScheduleMap[n.id][slot15_16] === null
-    );
-    
-    console.log(`15-16時 利用可能なA看護師: ${availableA.map(n => n.name).join(', ')}`);
-    
-    // 穿刺2人を配置（穿刺2時間まで）
-    const senshiCandidatesA = availableA
-      .filter(n => senshiCount[n.id] < 2)
-      .sort((a, b) => senshiCount[a.id] - senshiCount[b.id]);
-    
-    for (let i = 0; i < Math.min(2, senshiCandidatesA.length); i++) {
-      nurseScheduleMap[senshiCandidatesA[i].id][slot15_16] = '穿刺';
-      senshiCount[senshiCandidatesA[i].id]++;
-      console.log(`${senshiCandidatesA[i].name}を穿刺に配置（穿刺${senshiCount[senshiCandidatesA[i].id]}h）`);
-    }
-    
-    // 継続看護1人を配置（継続看護1時間まで、穿刺配置済みを除く）
-    const keizokuCandidatesA = availableA
-      .filter(n => 
-        nurseScheduleMap[n.id][slot15_16] !== '穿刺' &&
-        keizokuCount[n.id] < 1
-      )
-      .sort((a, b) => keizokuCount[a.id] - keizokuCount[b.id]);
-    
-    if (keizokuCandidatesA.length > 0) {
-      nurseScheduleMap[keizokuCandidatesA[0].id][slot15_16] = '継続看護';
-      keizokuCount[keizokuCandidatesA[0].id]++;
-      console.log(`${keizokuCandidatesA[0].name}を継続看護に配置（継続看護${keizokuCount[keizokuCandidatesA[0].id]}h）`);
-    }
-    
-    console.log('\n--- ステップ3: 残りをフロアで埋める ---');
-    
-    // 残りをフロアで埋める
-    workingNurses.forEach(nurse => {
-      if (nurse.id === mainLeader.id) return;
-      for (let i = 0; i < 7; i++) {
-        if (nurseScheduleMap[nurse.id][i] === null) {
-          nurseScheduleMap[nurse.id][i] = 'フロア';
+
+      // 遅出設定のトグル
+      const toggleLateStart = (nurseId) => {
+        const nurse = nurses.find(n => n.id === nurseId);
+        if (nurse.isShortTime) {
+          alert('時短勤務者は遅出に設定できません');
+          return;
         }
-      }
-    });
-    
-    console.log('\n========== 最終結果 ==========');
-    workingNurses.forEach(nurse => {
-      console.log(`${nurse.name}:`, nurseScheduleMap[nurse.id]);
-    });
+        setNurses(nurses.map(n => 
+          n.id === nurseId ? { ...n, isLateStart: !n.isLateStart } : n
+        ));
+      };
 
-    // scheduleMapをschedule形式に変換
-    timeSlots.forEach((slot, slotIdx) => {
-      newSchedule[slot] = {};
-      
-      const leaderNurse = workingNurses.find(n => nurseScheduleMap[n.id][slotIdx] === 'リーダー');
-      const deputyLeaderNurse = workingNurses.find(n => nurseScheduleMap[n.id][slotIdx] === '代理リーダー');
-      
-      if (leaderNurse) {
-        newSchedule[slot]['リーダー'] = leaderNurse.name;
-      } else if (deputyLeaderNurse) {
-        newSchedule[slot]['リーダー'] = `${deputyLeaderNurse.name}（代理）`;
-      }
-      
-      const senshiNurses = workingNurses.filter(n => nurseScheduleMap[n.id][slotIdx] === '穿刺');
-      for (let i = 0; i < Math.min(2, senshiNurses.length); i++) {
-        newSchedule[slot][`穿刺${i + 1}`] = senshiNurses[i].name;
-      }
-      
-      const keizokuNurse = workingNurses.find(n => nurseScheduleMap[n.id][slotIdx] === '継続看護');
-      if (keizokuNurse) {
-        newSchedule[slot]['継続看護'] = keizokuNurse.name;
-      }
-      
-      const floorNurses = workingNurses.filter(n => nurseScheduleMap[n.id][slotIdx] === 'フロア');
-      for (let i = 0; i < floorNurses.length; i++) {
-        newSchedule[slot][`フロア${i + 1}`] = floorNurses[i].name;
-      }
-    });
+      // 休務設定のトグル
+      const toggleAbsent = (nurseId) => {
+        setNurses(nurses.map(n => 
+          n.id === nurseId ? { ...n, isAbsent: !n.isAbsent, isLateStart: false } : n
+        ));
+      };
 
-    setSchedule(newSchedule);
-    setValidationErrors(errors);
-    
-    console.log('========================================');
-    console.log('スケジュール生成完了');
-    console.log('========================================');
-  };
+      // 名前更新
+      const updateNurseName = (nurseId, name) => {
+        setNurses(nurses.map(n => 
+          n.id === nurseId ? { ...n, name } : n
+        ));
+      };
 
-  const updateNurseName = (nurseId, name) => {
-    setNurses(nurses.map(n => 
-      n.id === nurseId ? { ...n, name } : n
-    ));
-  };
+      // スケジュール生成
+      const generateSchedule = () => {
+        console.clear();
+        console.log('========================================');
+        console.log('スケジュール生成開始');
+        console.log('========================================');
 
-  const toggleAbsent = (nurseId) => {
-    setNurses(nurses.map(n => 
-      n.id === nurseId ? { ...n, isAbsent: !n.isAbsent, breakStart: null } : n
-    ));
-  };
+        const errors = [];
+        const newSchedule = {};
+        const newSupportNeeded = {};
 
-  const addNurse = (type) => {
-    const newNurse = {
-      id: nextNurseId,
-      name: `${type}看護師${nurses.filter(n => n.type === type).length + 1}`,
-      type: type,
-      breakStart: null,
-      isAbsent: false
-    };
-    setNurses([...nurses, newNurse]);
-    setNextNurseId(nextNurseId + 1);
-  };
-
-  const removeNurse = (nurseId) => {
-    if (nurses.length <= 8) {
-      alert('看護師は最低8人必要です');
-      return;
-    }
-    if (mainLeaderId === nurseId) {
-      alert('メインリーダーは削除できません。先に別のA看護師をリーダーに設定してください。');
-      return;
-    }
-    setNurses(nurses.filter(n => n.id !== nurseId));
-  };
-
-  const getNurseSchedule = (nurseId) => {
-    const nurse = nurses.find(n => n.id === nurseId);
-    
-    if (nurse.isAbsent) {
-      return timeSlots.map(() => '休務');
-    }
-    
-    let breakSlotIndex;
-    if (nurse.breakStart === 11) breakSlotIndex = 2;
-    else if (nurse.breakStart === 12) breakSlotIndex = 3;
-    else if (nurse.breakStart === 13) breakSlotIndex = 4;
-    else if (nurse.breakStart === 14) breakSlotIndex = 5;
-    
-    return timeSlots.map((slot, idx) => {
-      if (idx === breakSlotIndex) return '休憩';
-      
-      if (!schedule[slot]) return '-';
-      
-      for (const [task, assignedName] of Object.entries(schedule[slot])) {
-        if (assignedName && assignedName.includes(nurse.name)) {
-          return task.replace(/（代理）/, '').replace(/\d+$/, '');
+        // 遅出チェック
+        const lateNurses = nurses.filter(n => n.isLateStart && !n.isAbsent);
+        if (lateNurses.length === 0) {
+          if (!confirm('遅出看護師が設定されていません。遅出なしで生成しますか？')) {
+            return;
+          }
         }
-      }
-      return '-';
-    });
-  };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-8 h-8 text-indigo-600" />
-              <h1 className="text-3xl font-bold text-gray-800">看護師業務管理システム</h1>
-            </div>
-            <button
-              onClick={generateSchedule}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
-            >
-              <RefreshCw className="w-5 h-5" />
-              スケジュール自動生成
-            </button>
-          </div>
+        // 出勤者
+        const workingNurses = nurses.filter(n => !n.isAbsent);
+        const aNurses = workingNurses.filter(n => n.type === 'A');
+        const bNurses = workingNurses.filter(n => n.type === 'B');
+        const cNurses = workingNurses.filter(n => n.type === 'C');
+        const abNurses = workingNurses.filter(n => n.type === 'A' || n.type === 'B');
 
-          {validationErrors.length > 0 && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
-              <div className="flex items-start">
-                <AlertCircle className="w-5 h-5 text-red-500 mr-2 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-red-800 mb-1">警告</h3>
-                  <ul className="text-sm text-red-700 space-y-1">
-                    {validationErrors.map((error, idx) => (
-                      <li key={idx}>• {error}</li>
-                    ))}
-                  </ul>
+        console.log('出勤者:', workingNurses.length, '人');
+        console.log('A看護師:', aNurses.length, '人');
+        console.log('B看護師:', bNurses.length, '人');
+        console.log('C看護師:', cNurses.length, '人');
+
+        if (aNurses.length < 2) {
+          errors.push('A看護師が不足しています（リーダー+代理で最低2人必要）');
+          setValidationErrors(errors);
+          return;
+        }
+
+        // リーダー決定（時短は不可）
+        let mainLeader = workingNurses.find(n => n.id === mainLeaderId && n.type === 'A' && !n.isShortTime);
+        if (!mainLeader) {
+          mainLeader = aNurses.find(n => !n.isShortTime);
+          if (!mainLeader) {
+            errors.push('時短以外のA看護師が必要です（リーダー用）');
+            setValidationErrors(errors);
+            return;
+          }
+          setMainLeaderId(mainLeader.id);
+        }
+        console.log('リーダー:', mainLeader.name);
+
+        // 各看護師のスケジュール初期化
+        const localScheduleMap = {};
+        workingNurses.forEach(n => {
+          localScheduleMap[n.id] = new Array(8).fill(null);
+        });
+
+        // === 休憩配分 ===
+        // 【指定の配分】
+        // 11時開始: 11時1人、12時1人、13時2人、14時3人、15時2人(遅出固定)
+        // 12時開始: 12時1人、13時3人、14時3人、15時2人(遅出固定)
+        // リーダーは12時休憩固定
+        const breakAssignments = {};
+        
+        // シャッフル関数
+        const shuffle = (array) => {
+          const arr = [...array];
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        };
+        
+        // 遅出看護師は15時休憩固定（slotIdx=6: 15-16時）
+        lateNurses.forEach(n => {
+          breakAssignments[n.id] = 6;
+          localScheduleMap[n.id][6] = '休憩';
+          console.log(`${n.name}: 15時休憩（遅出）`);
+        });
+
+        // 通常勤務者の休憩配分
+        const normalNurses = workingNurses.filter(n => !n.isLateStart);
+        
+        // リーダーの休憩時間は12時固定（slotIdx=3: 12-13時）
+        const leaderBreakSlot = 3; // 12時休憩固定
+        breakAssignments[mainLeader.id] = leaderBreakSlot;
+        localScheduleMap[mainLeader.id][leaderBreakSlot] = '休憩';
+        console.log(`${mainLeader.name}(リーダー): 12時休憩（固定）`);
+
+        // 残りの通常勤務者を指定配分で割り当て
+        const otherNormalNurses = shuffle(normalNurses.filter(n => n.id !== mainLeader.id));
+        
+        // 休憩枠の定義（リーダーの12時1人を除いた残り）
+        // 基本配分（遅出2人の場合、通常7人、リーダー除いて6人）
+        // 11時開始: 11時1人、13時2人、14時3人 = 6人分
+        // 12時開始: 13時3人、14時3人 = 6人分
+        let breakSlotQueue;
+        if (breakStartTime === 11) {
+          breakSlotQueue = [2, 4, 4, 5, 5, 5]; // slotIdx: 2=11時, 4=13時, 5=14時
+        } else {
+          breakSlotQueue = [4, 4, 4, 5, 5, 5]; // slotIdx: 4=13時, 5=14時
+        }
+        
+        // 遅出人数が2人でない場合、休憩枠を調整
+        const normalCount = otherNormalNurses.length;
+        if (normalCount > breakSlotQueue.length) {
+          // 通常勤務者が多い場合、14時枠を追加
+          const extra = normalCount - breakSlotQueue.length;
+          for (let i = 0; i < extra; i++) {
+            breakSlotQueue.push(5); // 14時に追加
+          }
+          console.log(`通常勤務者${normalCount}人、14時枠を${extra}人追加`);
+        }
+        
+        otherNormalNurses.forEach((nurse, idx) => {
+          if (idx < breakSlotQueue.length) {
+            const slotIdx = breakSlotQueue[idx];
+            breakAssignments[nurse.id] = slotIdx;
+            localScheduleMap[nurse.id][slotIdx] = '休憩';
+            console.log(`${nurse.name}: ${9 + slotIdx}時休憩`);
+          }
+        });
+        
+        // 休憩人数をログ出力
+        const countBySlot = {};
+        Object.values(breakAssignments).forEach(slot => {
+          countBySlot[slot] = (countBySlot[slot] || 0) + 1;
+        });
+        console.log('休憩配分:', countBySlot);
+
+        // === リーダー配置 ===
+        // リーダーは休憩時以外はリーダー固定
+        for (let i = 0; i < 8; i++) {
+          // 遅出の場合、9-10時は除外
+          if (mainLeader.isLateStart && i === 0) continue;
+          // 時短の場合、16-17時は除外
+          if (mainLeader.isShortTime && i === 7) continue;
+          
+          if (localScheduleMap[mainLeader.id][i] === null) {
+            localScheduleMap[mainLeader.id][i] = 'リーダー';
+          }
+        }
+
+        // 代理リーダー配置（リーダー休憩中）
+        // 時短でも代理リーダーは可能
+        const deputyLeaderCandidates = aNurses.filter(n => n.id !== mainLeader.id);
+        const leaderBreakIdx = breakAssignments[mainLeader.id];
+        
+        // リーダー休憩時（12時）、他のA看護師で対応可能な人を探す
+        // ★ランダム性を持たせるためシャッフル
+        const availableDeputies = shuffle(deputyLeaderCandidates.filter(n => 
+          localScheduleMap[n.id][leaderBreakIdx] === null &&
+          !(n.isLateStart && leaderBreakIdx === 0) &&
+          !(n.isShortTime && leaderBreakIdx === 7)
+        ));
+        
+        if (availableDeputies.length > 0) {
+          localScheduleMap[availableDeputies[0].id][leaderBreakIdx] = '代理リーダー';
+          console.log(`${availableDeputies[0].name}: 代理リーダー（${9 + leaderBreakIdx}時）`);
+        } else {
+          errors.push('リーダー休憩中の代理を配置できません');
+        }
+
+        // === 継続看護配置 ===
+        // A,B看護師から選出
+        // 9-12時（3枠連続）×1人、12-15時（3枠連続）×1人
+        // 継続看護担当は穿刺しない
+        
+        console.log('\n--- 継続看護配置 ---');
+        const keizokuNurses = [];
+        
+        // 9-12時枠の継続看護担当（slotIdx 0,1,2）
+        // ★ランダム性を持たせるためシャッフル
+        const keizoku1Candidates = shuffle(abNurses.filter(n => {
+          if (n.id === mainLeader.id) return false;
+          if (n.isLateStart) return false; // 遅出は9時から働けない
+          // 9-12時の3枠が空いているか
+          for (let i = 0; i <= 2; i++) {
+            if (localScheduleMap[n.id][i] !== null) return false;
+          }
+          return true;
+        }));
+        
+        if (keizoku1Candidates.length > 0) {
+          const k1 = keizoku1Candidates[0];
+          for (let i = 0; i <= 2; i++) {
+            localScheduleMap[k1.id][i] = '継続看護';
+          }
+          keizokuNurses.push(k1.id);
+          console.log(`${k1.name}: 継続看護 9-12時`);
+        } else {
+          errors.push('9-12時の継続看護を配置できません');
+        }
+
+        // 12-15時枠の継続看護担当（slotIdx 3,4,5）
+        // ★ランダム性を持たせるためシャッフル
+        const keizoku2Candidates = shuffle(abNurses.filter(n => {
+          if (n.id === mainLeader.id) return false;
+          if (keizokuNurses.includes(n.id)) return false;
+          // 12-15時の3枠が空いているか
+          for (let i = 3; i <= 5; i++) {
+            if (localScheduleMap[n.id][i] !== null) return false;
+          }
+          return true;
+        }));
+        
+        if (keizoku2Candidates.length > 0) {
+          const k2 = keizoku2Candidates[0];
+          for (let i = 3; i <= 5; i++) {
+            localScheduleMap[k2.id][i] = '継続看護';
+          }
+          keizokuNurses.push(k2.id);
+          console.log(`${k2.name}: 継続看護 12-15時`);
+        } else {
+          errors.push('12-15時の継続看護を配置できません');
+        }
+
+        // === 穿刺配置 ===
+        // コアタイム: 10-14時に2人×4時間=8枠
+        // 前後: 9-10時に1人、14-15時に1人（計10枠）
+        // 制約: 2時間まで（飛び飛びでもOK）
+        // 継続看護担当は穿刺しない
+        
+        console.log('\n--- 穿刺配置 ---');
+        
+        // 穿刺可能な看護師（リーダー、継続看護担当を除く）
+        const getSenshiCandidates = (slotIdx) => {
+          return workingNurses.filter(n => {
+            if (n.id === mainLeader.id) return false;
+            if (keizokuNurses.includes(n.id)) return false;
+            if (localScheduleMap[n.id][slotIdx] !== null) return false;
+            // 遅出は9-10時不可
+            if (n.isLateStart && slotIdx === 0) return false;
+            // 時短は16-17時不可
+            if (n.isShortTime && slotIdx === 7) return false;
+            return true;
+          });
+        };
+
+        // 穿刺回数を追跡（最大2回）
+        const senshiCount = {};
+        workingNurses.forEach(n => {
+          senshiCount[n.id] = 0;
+        });
+
+        // 穿刺配置関数（2時間まで、飛び飛びOK）
+        const canAssignSenshi = (nurseId) => {
+          return senshiCount[nurseId] < 2;
+        };
+
+        const assignSenshi = (nurseId, slotIdx) => {
+          localScheduleMap[nurseId][slotIdx] = '穿刺';
+          senshiCount[nurseId]++;
+        };
+
+        // 穿刺必要数定義
+        const senshiRequired = {
+          0: 1,  // 9-10時: 1人
+          1: 2,  // 10-11時: 2人（コアタイム）
+          2: 2,  // 11-12時: 2人（コアタイム）
+          3: 2,  // 12-13時: 2人（コアタイム）
+          4: 2,  // 13-14時: 2人（コアタイム）
+          5: 1,  // 14-15時: 1人
+          6: 0,  // 15-16時: 0人
+          7: 0   // 16-17時: 0人
+        };
+
+        // 配置優先順（11-13時応援なし最優先）
+        const priorityOrder = [2, 3, 1, 4, 5, 0]; // 11-12, 12-13を最優先
+
+        for (const slotIdx of priorityOrder) {
+          const required = senshiRequired[slotIdx];
+          if (required === 0) continue;
+
+          let candidates = getSenshiCandidates(slotIdx).filter(n => canAssignSenshi(n.id));
+          
+          // 穿刺回数が少ない順にソート、同数ならランダム
+          candidates.sort((a, b) => {
+            const diff = senshiCount[a.id] - senshiCount[b.id];
+            if (diff !== 0) return diff;
+            return Math.random() - 0.5; // 同数ならランダム
+          });
+
+          const assigned = [];
+          for (let i = 0; i < required && i < candidates.length; i++) {
+            assignSenshi(candidates[i].id, slotIdx);
+            assigned.push(candidates[i].name);
+          }
+          
+          console.log(`${timeSlots[slotIdx]}: 穿刺 ${assigned.join(', ')} (必要${required}人)`);
+          
+          if (assigned.length < required) {
+            errors.push(`${timeSlots[slotIdx]}: 穿刺が${required - assigned.length}人不足`);
+          }
+        }
+
+        // === 残りをフロアで埋める ===
+        console.log('\n--- フロア配置 ---');
+        
+        workingNurses.forEach(nurse => {
+          for (let i = 0; i < 8; i++) {
+            // 遅出は9-10時不可
+            if (nurse.isLateStart && i === 0) continue;
+            // 時短は16-17時不可
+            if (nurse.isShortTime && i === 7) continue;
+            
+            if (localScheduleMap[nurse.id][i] === null) {
+              localScheduleMap[nurse.id][i] = 'フロア';
+            }
+          }
+        });
+
+        // === フロア人数チェック・応援必要数計算 ===
+        console.log('\n--- フロア人数チェック ---');
+        const minFloor = 4; // 最低フロア人数
+        
+        for (let i = 0; i < 8; i++) {
+          const floorCount = workingNurses.filter(n => 
+            localScheduleMap[n.id][i] === 'フロア'
+          ).length;
+          
+          const shortage = Math.max(0, minFloor - floorCount);
+          if (shortage > 0) {
+            newSupportNeeded[i] = shortage;
+            console.log(`${timeSlots[i]}: フロア${floorCount}人 → 応援${shortage}人必要`);
+          } else {
+            console.log(`${timeSlots[i]}: フロア${floorCount}人 → OK`);
+          }
+        }
+
+        // === scheduleMapをschedule形式に変換 ===
+        timeSlots.forEach((slot, slotIdx) => {
+          newSchedule[slot] = {
+            tasks: {},
+            floorCount: 0,
+            supportNeeded: newSupportNeeded[slotIdx] || 0
+          };
+          
+          workingNurses.forEach(nurse => {
+            const task = localScheduleMap[nurse.id][slotIdx];
+            if (task) {
+              if (!newSchedule[slot].tasks[task]) {
+                newSchedule[slot].tasks[task] = [];
+              }
+              newSchedule[slot].tasks[task].push(nurse.name);
+              if (task === 'フロア') {
+                newSchedule[slot].floorCount++;
+              }
+            }
+          });
+        });
+
+        // === 結果表示 ===
+        console.log('\n========== 最終結果 ==========');
+        workingNurses.forEach(nurse => {
+          console.log(`${nurse.name}:`, localScheduleMap[nurse.id]);
+        });
+
+        // 応援必要総数と最大同時応援数（ログのみ）
+        const totalSupport = Object.values(newSupportNeeded).reduce((a, b) => a + b, 0);
+        const maxSimultaneous = Math.max(0, ...Object.values(newSupportNeeded));
+        console.log(`応援必要: 延べ${totalSupport}人、最大同時${maxSimultaneous}人`);
+
+        setSchedule(newSchedule);
+        setSupportNeeded(newSupportNeeded);
+        setValidationErrors(errors);
+        setScheduleGenerated(true);
+        setNurseScheduleMap(localScheduleMap); // スケジュールマップを保存
+        setSelectedCell(null); // 選択解除
+
+        console.log('========================================');
+        console.log('スケジュール生成完了');
+        console.log('========================================');
+      };
+
+      // 個人別スケジュール取得
+      const getNurseSchedule = (nurseId) => {
+        const nurse = nurses.find(n => n.id === nurseId);
+        if (nurse.isAbsent) {
+          return timeSlots.map(() => '休務');
+        }
+        if (!scheduleGenerated || !nurseScheduleMap[nurseId]) {
+          return timeSlots.map((_, idx) => {
+            if (nurse.isLateStart && idx === 0) return '-';
+            if (nurse.isShortTime && idx === 7) return '-';
+            return '-';
+          });
+        }
+
+        return nurseScheduleMap[nurseId].map((task, idx) => {
+          if (nurse.isLateStart && idx === 0) return '-';
+          if (nurse.isShortTime && idx === 7) return '-';
+          return task || '-';
+        });
+      };
+
+      // セルクリック処理（入れ替え機能）
+      const handleCellClick = (nurse, slotIdx, task) => {
+        // 休憩、休務、勤務時間外は入れ替え不可
+        if (task === '休憩' || task === '休務' || task === '-') {
+          setSelectedCell(null);
+          return;
+        }
+
+        if (!selectedCell) {
+          // 1回目のクリック：選択
+          setSelectedCell({
+            nurseId: nurse.id,
+            nurseName: nurse.name,
+            slotIdx: slotIdx,
+            task: task
+          });
+        } else if (selectedCell.nurseId === nurse.id && selectedCell.slotIdx === slotIdx) {
+          // 同じセルをクリック：選択解除
+          setSelectedCell(null);
+        } else {
+          // 2回目のクリック：入れ替え実行
+          const targetTask = task;
+          
+          // 休憩、休務、勤務時間外との入れ替えは不可
+          if (targetTask === '休憩' || targetTask === '休務' || targetTask === '-') {
+            setSelectedCell(null);
+            return;
+          }
+
+          // ディープコピーを作成
+          const newMap = {};
+          Object.keys(nurseScheduleMap).forEach(id => {
+            newMap[id] = [...nurseScheduleMap[id]];
+          });
+
+          // 同じ時間帯での入れ替え
+          if (selectedCell.slotIdx === slotIdx) {
+            // 同じ時間帯なら2人の業務を入れ替え
+            const temp = newMap[selectedCell.nurseId][slotIdx];
+            newMap[selectedCell.nurseId][slotIdx] = newMap[nurse.id][slotIdx];
+            newMap[nurse.id][slotIdx] = temp;
+          } else {
+            // 異なる時間帯なら同じ人の業務を入れ替え、または2人×2時間帯を入れ替え
+            if (selectedCell.nurseId === nurse.id) {
+              // 同じ人の異なる時間帯を入れ替え
+              const temp = newMap[nurse.id][selectedCell.slotIdx];
+              newMap[nurse.id][selectedCell.slotIdx] = newMap[nurse.id][slotIdx];
+              newMap[nurse.id][slotIdx] = temp;
+            } else {
+              // 2人の異なる時間帯を入れ替え
+              const temp = newMap[selectedCell.nurseId][selectedCell.slotIdx];
+              newMap[selectedCell.nurseId][selectedCell.slotIdx] = newMap[nurse.id][slotIdx];
+              newMap[nurse.id][slotIdx] = temp;
+            }
+          }
+          
+          setNurseScheduleMap(newMap);
+          recalculateSupport(newMap);
+          setSelectedCell(null);
+        }
+      };
+
+      // 応援必要数の再計算
+      const recalculateSupport = (scheduleMap) => {
+        const workingNurses = nurses.filter(n => !n.isAbsent);
+        const minFloor = 4;
+        const newSupportNeeded = {};
+        
+        for (let i = 0; i < 8; i++) {
+          const floorCount = workingNurses.filter(n => 
+            scheduleMap[n.id] && scheduleMap[n.id][i] === 'フロア'
+          ).length;
+          
+          const shortage = Math.max(0, minFloor - floorCount);
+          if (shortage > 0) {
+            newSupportNeeded[i] = shortage;
+          }
+        }
+        setSupportNeeded(newSupportNeeded);
+      };
+
+      // 総応援必要数
+      const totalSupportNeeded = Object.values(supportNeeded).reduce((a, b) => a + b, 0);
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+          <div className="max-w-7xl mx-auto">
+            {/* ヘッダー */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-8 h-8 text-indigo-600" />
+                  <h1 className="text-2xl font-bold text-gray-800">看護師業務管理システム v2</h1>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {validationErrors.length === 0 && Object.keys(schedule).length > 0 && (
-            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded">
-              <div className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-2" />
-                <span className="font-semibold text-green-800">スケジュール生成完了（コンソールでデバッグ情報を確認できます）</span>
-              </div>
-            </div>
-          )}
-
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-indigo-50 p-6 rounded-xl">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-xl font-semibold text-gray-800">看護師設定</h2>
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  休憩開始時刻
-                </label>
-                <select
-                  value={breakStartTime}
-                  onChange={(e) => setBreakStartTime(parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                <button
+                  onClick={generateSchedule}
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
                 >
-                  <option value={11}>11時スタート (11時/12時/13時/14時)</option>
-                  <option value={12}>12時スタート (12時/13時/14時)</option>
-                </select>
+                  <RefreshCw className="w-5 h-5" />
+                  スケジュール生成
+                </button>
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  メインリーダー
-                </label>
-                <select
-                  value={mainLeaderId}
-                  onChange={(e) => setMainLeaderId(parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  {nurses.filter(n => n.type === 'A' && !n.isAbsent).map(nurse => (
-                    <option key={nurse.id} value={nurse.id}>{nurse.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {nurses.some(n => n.breakStart !== null && !n.isAbsent) && (
-                <div className="mb-4 bg-blue-50 p-3 rounded-lg">
-                  <div className="text-sm font-medium text-gray-700 mb-2">休憩配分結果</div>
-                  <div className="space-y-2">
-                    {breakStartTime === 11 ? (
-                      <>
-                        {[11, 12, 13, 14].map(time => (
-                          <div key={time} className="flex justify-between items-center">
-                            <span className="text-xs text-gray-600">{time}-{time+1}時:</span>
-                            <div className="flex gap-2">
-                              <span className="text-xs font-bold text-purple-600">
-                                A: {nurses.filter(n => n.breakStart === time && n.type === 'A' && !n.isAbsent).length}人
-                              </span>
-                              <span className="text-xs font-bold text-blue-600">
-                                B: {nurses.filter(n => n.breakStart === time && n.type === 'B' && !n.isAbsent).length}人
-                              </span>
-                              <span className="text-xs font-bold text-green-600">
-                                (計{nurses.filter(n => n.breakStart === time && !n.isAbsent).length}人)
-                              </span>
-                            </div>
-                          </div>
+              {/* エラー表示（致命的なもののみ） */}
+              {validationErrors.filter(e => !e.includes('応援')).length > 0 && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
+                  <div className="flex items-start">
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-2 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-red-800 mb-1">エラー</h3>
+                      <ul className="text-sm text-red-700 space-y-1">
+                        {validationErrors.filter(e => !e.includes('応援')).map((error, idx) => (
+                          <li key={idx}>• {error}</li>
                         ))}
-                      </>
-                    ) : (
-                      <>
-                        {[12, 13, 14].map(time => (
-                          <div key={time} className="flex justify-between items-center">
-                            <span className="text-xs text-gray-600">{time}-{time+1}時:</span>
-                            <div className="flex gap-2">
-                              <span className="text-xs font-bold text-purple-600">
-                                A: {nurses.filter(n => n.breakStart === time && n.type === 'A' && !n.isAbsent).length}人
-                              </span>
-                              <span className="text-xs font-bold text-blue-600">
-                                B: {nurses.filter(n => n.breakStart === time && n.type === 'B' && !n.isAbsent).length}人
-                              </span>
-                              <span className="text-xs font-bold text-green-600">
-                                (計{nurses.filter(n => n.breakStart === time && !n.isAbsent).length}人)
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    ※ リーダー休憩時（{breakStartTime}時）は2人のみ
+                      </ul>
+                    </div>
                   </div>
                 </div>
               )}
 
-              <div className="space-y-3 max-h-96 overflow-y-auto mb-4">
+              {scheduleGenerated && validationErrors.filter(e => !e.includes('応援')).length === 0 && (
+                <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-2" />
+                    <span className="font-semibold text-green-800">スケジュール生成完了</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 設定パネル */}
+            <div className="bg-white rounded-xl shadow-lg p-4 mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="w-5 h-5 text-indigo-600" />
+                <h2 className="text-lg font-semibold text-gray-800">看護師設定</h2>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">リーダー</label>
+                  <select
+                    value={mainLeaderId}
+                    onChange={(e) => setMainLeaderId(parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    {nurses.filter(n => n.type === 'A' && !n.isAbsent && !n.isShortTime).map(nurse => (
+                      <option key={nurse.id} value={nurse.id}>{nurse.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">休憩開始時間</label>
+                  <select
+                    value={breakStartTime}
+                    onChange={(e) => setBreakStartTime(parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value={11}>11時開始</option>
+                    <option value={12}>12時開始</option>
+                  </select>
+                </div>
+
+                <div className={`p-2 rounded-lg ${lateStartCount >= 1 ? 'bg-blue-100' : 'bg-gray-100'} flex items-center`}>
+                  <Clock className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-semibold">遅出: {lateStartCount}人</span>
+                </div>
+              </div>
+
+              {/* 看護師リスト */}
+              <div className="grid md:grid-cols-3 gap-2">
                 {nurses.map(nurse => (
-                  <div key={nurse.id} className={`bg-white p-3 rounded-lg shadow-sm ${nurse.isAbsent ? 'opacity-50' : ''}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        nurse.type === 'A' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {nurse.type}
-                      </span>
+                  <div 
+                    key={nurse.id} 
+                    className={`p-2 rounded-lg border ${
+                      nurse.isAbsent ? 'bg-gray-100 opacity-60' : 
+                      nurse.isLateStart ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${
+                        nurse.type === 'A' ? 'bg-purple-500' : 
+                        nurse.type === 'B' ? 'bg-blue-500' : 
+                        'bg-green-500'
+                      }`}></span>
                       <input
                         type="text"
                         value={nurse.name}
                         onChange={(e) => updateNurseName(nurse.id, e.target.value)}
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500"
+                        className="flex-1 px-2 py-1 border rounded text-sm"
                         disabled={nurse.isAbsent}
                       />
+                      {nurse.isShortTime && (
+                        <span className="px-1 py-0.5 bg-yellow-200 text-yellow-800 rounded text-xs">時短</span>
+                      )}
+                      {!nurse.isShortTime && !nurse.isAbsent && (
+                        <button
+                          onClick={() => toggleLateStart(nurse.id)}
+                          className={`px-2 py-1 rounded text-xs font-semibold ${
+                            nurse.isLateStart 
+                              ? 'bg-blue-500 text-white' 
+                              : 'bg-gray-200 text-gray-600 hover:bg-blue-100'
+                          }`}
+                        >
+                          遅出
+                        </button>
+                      )}
                       <button
                         onClick={() => toggleAbsent(nurse.id)}
-                        className={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 ${
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
                           nurse.isAbsent 
-                            ? 'bg-green-100 text-green-600 hover:bg-green-200' 
-                            : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-orange-200 text-orange-700 hover:bg-orange-300'
                         }`}
-                        title={nurse.isAbsent ? '出勤に戻す' : '休務にする'}
                       >
-                        <UserX className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => removeNurse(nurse.id)}
-                        className="px-2 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 text-xs font-semibold flex items-center gap-1"
-                      >
-                        <Trash2 className="w-3 h-3" />
+                        {nurse.isAbsent ? '復帰' : '休務'}
                       </button>
                     </div>
-                    {nurse.isAbsent ? (
-                      <div className="flex items-center gap-2 text-sm">
-                        <UserX className="w-4 h-4 text-orange-500" />
-                        <span className="text-orange-600 font-semibold">休務</span>
-                      </div>
-                    ) : nurse.breakStart ? (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-600">休憩: {nurse.breakStart}:00-{nurse.breakStart + 1}:00</span>
-                      </div>
-                    ) : null}
                   </div>
                 ))}
               </div>
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={() => addNurse('A')}
-                  className="flex-1 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-semibold text-sm flex items-center justify-center gap-1"
-                >
-                  <Plus className="w-4 h-4" />
-                  A看護師
-                </button>
-                <button
-                  onClick={() => addNurse('B')}
-                  className="flex-1 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-semibold text-sm flex items-center justify-center gap-1"
-                >
-                  <Plus className="w-4 h-4" />
-                  B看護師
-                </button>
-              </div>
             </div>
 
-            <div className="bg-amber-50 p-6 rounded-xl">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">業務要件</h2>
-              <div className="space-y-3 text-sm">
-                <div className="bg-white p-3 rounded-lg">
-                  <span className="font-semibold text-gray-700">人数:</span>
-                  <span className="text-gray-600 ml-2">最低6人必要（推奨8人）</span>
+            {/* 個人別スケジュール表 */}
+            {scheduleGenerated && (
+              <div className="bg-white rounded-xl shadow-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold text-gray-800">スケジュール表</h2>
+                  {selectedCell && (
+                    <span className="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded">
+                      入れ替え中: {selectedCell.nurseName} の {timeSlots[selectedCell.slotIdx]}
+                    </span>
+                  )}
                 </div>
-                <div className="bg-white p-3 rounded-lg">
-                  <span className="font-semibold text-gray-700">時間帯:</span>
-                  <span className="text-gray-600 ml-2">9:00-16:00（7単位）</span>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-purple-600 text-white">
+                        <th className="border px-3 py-2">看護師</th>
+                        {timeSlots.map(slot => (
+                          <th key={slot} className="border px-3 py-2 whitespace-nowrap">{slot}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {nurses.filter(n => !n.isAbsent).map((nurse, idx) => (
+                        <tr key={nurse.id} className={idx % 2 === 0 ? 'bg-gray-50' : ''}>
+                          <td className="border px-3 py-2 font-semibold">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-3 h-3 rounded-full ${
+                                nurse.type === 'A' ? 'bg-purple-500' : 
+                                nurse.type === 'B' ? 'bg-blue-500' : 
+                                'bg-green-500'
+                              }`}></span>
+                              {nurse.name}
+                              {nurse.isShortTime && <span className="text-xs text-yellow-600">(時短)</span>}
+                              {nurse.isLateStart && <span className="text-xs text-blue-600">(遅出)</span>}
+                            </div>
+                          </td>
+                          {getNurseSchedule(nurse.id).map((task, slotIdx) => (
+                            <td 
+                              key={slotIdx} 
+                              onClick={() => handleCellClick(nurse, slotIdx, task)}
+                              className={`border px-2 py-2 text-center text-xs cursor-pointer hover:opacity-80 ${
+                                selectedCell?.nurseId === nurse.id && selectedCell?.slotIdx === slotIdx 
+                                  ? 'ring-2 ring-blue-500' : ''
+                              } ${
+                                task === '休憩' ? 'bg-yellow-200 font-semibold' :
+                                task === '休務' ? 'bg-orange-200' :
+                                task === 'リーダー' ? 'bg-purple-200 font-semibold' :
+                                task === '代理リーダー' ? 'bg-purple-100' :
+                                task === '穿刺' ? 'bg-red-200 font-semibold' :
+                                task === '継続看護' ? 'bg-blue-200 font-semibold' :
+                                task === 'フロア' ? 'bg-gray-100' :
+                                task === '-' ? 'bg-gray-300' : ''
+                              }`}
+                            >
+                              {task}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                      {/* 応援行 */}
+                      <tr className="bg-red-50">
+                        <td className="border px-3 py-2 font-bold text-red-700">応援</td>
+                        {timeSlots.map((slot, slotIdx) => {
+                          const needed = supportNeeded[slotIdx] || 0;
+                          return (
+                            <td 
+                              key={slotIdx} 
+                              className={`border px-2 py-2 text-center ${
+                                needed > 0 ? 'font-bold text-red-600 text-lg' : 'text-gray-400'
+                              }`}
+                            >
+                              {needed > 0 ? needed : '-'}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-                <div className="bg-white p-3 rounded-lg">
-                  <span className="font-semibold text-gray-700">コアタイム:</span>
-                  <span className="text-gray-600 ml-2">9:00-15:00（穿刺・継続看護を配置）</span>
-                </div>
-                <div className="bg-white p-3 rounded-lg">
-                  <span className="font-semibold text-gray-700">休憩:</span>
-                  <span className="text-gray-600 ml-2">最初の時間帯2人のみ、残りは均等配分（最大3人）</span>
-                </div>
-                <div className="bg-white p-3 rounded-lg">
-                  <span className="font-semibold text-gray-700">業務配分:</span>
-                  <ul className="text-gray-600 ml-2 mt-1 space-y-1">
-                    <li>• リーダー: 1人（A看護師固定）</li>
-                    <li>• <strong className="text-blue-700">コアタイム（9-15時）: 18スロット（穿刺2+継続看護1）×6時間</strong></li>
-                    <li>• <strong className="text-purple-700">配分対象: リーダー・代理を除く6人（A2+B4）で均等配分</strong></li>
-                    <li>• <strong className="text-red-600">個人制限: 穿刺2時間まで、継続看護1時間まで</strong></li>
-                    <li>• <strong className="text-green-700">休務者あり: 代理も18スロット配分に参加</strong></li>
-                    <li>• <strong className="text-orange-600">15-16時: A看護師のみで担当</strong></li>
-                  </ul>
+                <div className="mt-3 text-sm text-gray-500">
+                  ※ セルをクリックして別のセルをクリックすると業務を入れ替えられます
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
-
-        {Object.keys(schedule).length > 0 && (
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">個人別スケジュール表</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-purple-600 text-white">
-                    <th className="border border-purple-500 px-4 py-3 text-left font-semibold">看護師</th>
-                    <th className="border border-purple-500 px-4 py-3 text-center font-semibold">種別</th>
-                    {timeSlots.map(slot => (
-                      <th key={slot} className="border border-purple-500 px-4 py-3 text-center font-semibold whitespace-nowrap">
-                        {slot}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {nurses.map((nurse, idx) => (
-                    <tr key={nurse.id} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                      <td className="border border-gray-300 px-4 py-3 font-semibold text-gray-700">
-                        {nurse.name}
-                        {nurse.isAbsent && <span className="ml-2 text-xs text-orange-600">(休務)</span>}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                          nurse.type === 'A' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                        }`}>
-                          {nurse.type}
-                        </span>
-                      </td>
-                      {getNurseSchedule(nurse.id).map((task, slotIdx) => (
-                        <td 
-                          key={slotIdx} 
-                          className={`border border-gray-300 px-4 py-3 text-center text-sm ${
-                            task === '休憩' ? 'bg-yellow-100 font-semibold text-yellow-800' : 
-                            task === '休務' ? 'bg-orange-100 font-semibold text-orange-800' : ''
-                          }`}
-                        >
-                          {task}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
+      );
+    };
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<NursingScheduleApp />);
