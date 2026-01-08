@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>看護師業務管理システム v2</title>
+  <title>シフトナビ</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -77,16 +77,17 @@
       const slotToIndex = { '9-10': 0, '10-11': 1, '11-12': 2, '12-13': 3, '13-14': 4, '14-15': 5, '15-16': 6, '16-17': 7 };
       
       // 初期看護師リスト: A=5人、B=2人、C=2人
+      // leaveType: null=なし, 'AM'=午前休(12時出勤), 'PM'=午後休(12時退勤)
       const [nurses, setNurses] = useState([
-        { id: 1, name: 'A1', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
-        { id: 2, name: 'A2', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
-        { id: 3, name: 'A3', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
-        { id: 4, name: 'A4', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false },
-        { id: 5, name: 'A5(時短)', type: 'A', isShortTime: true, isLateStart: false, isAbsent: false },
-        { id: 6, name: 'B1', type: 'B', isShortTime: false, isLateStart: false, isAbsent: false },
-        { id: 7, name: 'B2(時短)', type: 'B', isShortTime: true, isLateStart: false, isAbsent: false },
-        { id: 8, name: 'C1', type: 'C', isShortTime: false, isLateStart: false, isAbsent: false },
-        { id: 9, name: 'C2(時短)', type: 'C', isShortTime: true, isLateStart: false, isAbsent: false },
+        { id: 1, name: 'A1', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 2, name: 'A2', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 3, name: 'A3', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 4, name: 'A4', type: 'A', isShortTime: false, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 5, name: 'A5', type: 'A', isShortTime: true, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 6, name: 'B1', type: 'B', isShortTime: false, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 7, name: 'B2', type: 'B', isShortTime: true, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 8, name: 'C1', type: 'C', isShortTime: false, isLateStart: false, isAbsent: false, leaveType: null },
+        { id: 9, name: 'C2', type: 'C', isShortTime: true, isLateStart: false, isAbsent: false, leaveType: null },
       ]);
 
       const [schedule, setSchedule] = useState({});
@@ -111,15 +112,33 @@
           alert('時短勤務者は遅出に設定できません');
           return;
         }
+        if (nurse.leaveType) {
+          alert('AM休/PM休と遅出は併用できません');
+          return;
+        }
         setNurses(nurses.map(n => 
           n.id === nurseId ? { ...n, isLateStart: !n.isLateStart } : n
+        ));
+      };
+
+      // AM休/PM休のトグル（なし→AM休→PM休→なし）
+      const toggleLeaveType = (nurseId) => {
+        const nurse = nurses.find(n => n.id === nurseId);
+        if (nurse.isLateStart) {
+          alert('遅出とAM休/PM休は併用できません');
+          return;
+        }
+        const nextLeaveType = nurse.leaveType === null ? 'AM' : 
+                             nurse.leaveType === 'AM' ? 'PM' : null;
+        setNurses(nurses.map(n => 
+          n.id === nurseId ? { ...n, leaveType: nextLeaveType } : n
         ));
       };
 
       // 休務設定のトグル
       const toggleAbsent = (nurseId) => {
         setNurses(nurses.map(n => 
-          n.id === nurseId ? { ...n, isAbsent: !n.isAbsent, isLateStart: false } : n
+          n.id === nurseId ? { ...n, isAbsent: !n.isAbsent, isLateStart: false, leaveType: null } : n
         ));
       };
 
@@ -167,23 +186,35 @@
           return;
         }
 
-        // リーダー決定（時短は不可）
-        let mainLeader = workingNurses.find(n => n.id === mainLeaderId && n.type === 'A' && !n.isShortTime);
+        // リーダー決定（半休は不可、遅出・時短はOK）
+        let mainLeader = workingNurses.find(n => n.id === mainLeaderId && n.type === 'A' && !n.leaveType);
         if (!mainLeader) {
-          mainLeader = aNurses.find(n => !n.isShortTime);
+          mainLeader = aNurses.find(n => !n.leaveType);
           if (!mainLeader) {
-            errors.push('時短以外のA看護師が必要です（リーダー用）');
+            errors.push('半休以外のA看護師が必要です（リーダー用）');
             setValidationErrors(errors);
             return;
           }
           setMainLeaderId(mainLeader.id);
         }
-        console.log('リーダー:', mainLeader.name);
+        console.log('リーダー:', mainLeader.name, mainLeader.isLateStart ? '(遅出)' : '', mainLeader.isShortTime ? '(時短)' : '');
 
         // 各看護師のスケジュール初期化
         const localScheduleMap = {};
         workingNurses.forEach(n => {
           localScheduleMap[n.id] = new Array(8).fill(null);
+          // AM休は9-12時を休み扱い
+          if (n.leaveType === 'AM') {
+            for (let i = 0; i < 3; i++) {
+              localScheduleMap[n.id][i] = 'AM休';
+            }
+          }
+          // PM休は12-17時を休み扱い（時短は16-17時も）
+          if (n.leaveType === 'PM') {
+            for (let i = 3; i < 8; i++) {
+              localScheduleMap[n.id][i] = 'PM休';
+            }
+          }
         });
 
         // === 休憩配分 ===
@@ -191,6 +222,8 @@
         // 11時開始: 11時1人、12時1人、13時2人、14時3人、15時2人(遅出固定)
         // 12時開始: 12時1人、13時3人、14時3人、15時2人(遅出固定)
         // リーダーは12時休憩固定
+        // PM休は休憩不要（9-12時のみ勤務）
+        // AM休は14時休憩に配分（12-17時勤務）
         const breakAssignments = {};
         
         // シャッフル関数
@@ -210,30 +243,76 @@
           console.log(`${n.name}: 15時休憩（遅出）`);
         });
 
-        // 通常勤務者の休憩配分
-        const normalNurses = workingNurses.filter(n => !n.isLateStart);
+        // AM休の人は14時休憩に配分（12-17時勤務）
+        const amLeaveNurses = workingNurses.filter(n => n.leaveType === 'AM');
+        amLeaveNurses.forEach(n => {
+          breakAssignments[n.id] = 5; // 14時休憩
+          localScheduleMap[n.id][5] = '休憩';
+          console.log(`${n.name}: 14時休憩（AM休）`);
+        });
+
+        // PM休の人は休憩不要（9-12時のみ勤務なので）
+        const pmLeaveNurses = workingNurses.filter(n => n.leaveType === 'PM');
+        pmLeaveNurses.forEach(n => {
+          console.log(`${n.name}: 休憩なし（PM休）`);
+        });
+
+        // 通常勤務者の休憩配分（遅出、AM休、PM休を除く）
+        const normalNurses = workingNurses.filter(n => !n.isLateStart && !n.leaveType);
         
-        // リーダーの休憩時間は12時固定（slotIdx=3: 12-13時）
-        const leaderBreakSlot = 3; // 12時休憩固定
-        breakAssignments[mainLeader.id] = leaderBreakSlot;
-        localScheduleMap[mainLeader.id][leaderBreakSlot] = '休憩';
-        console.log(`${mainLeader.name}(リーダー): 12時休憩（固定）`);
+        // リーダーが遅出の場合は別処理
+        if (mainLeader.isLateStart) {
+          // 遅出リーダーは既に15時休憩が設定されている
+          // 12時休憩枠が空くので、別の人を入れる
+          console.log('遅出リーダーのため、9-10時はリーダー不在、12時休憩枠は別の人を配置');
+        } else {
+          // リーダーの休憩時間は12時固定（slotIdx=3: 12-13時）
+          const leaderBreakSlot = 3; // 12時休憩固定
+          breakAssignments[mainLeader.id] = leaderBreakSlot;
+          localScheduleMap[mainLeader.id][leaderBreakSlot] = '休憩';
+          console.log(`${mainLeader.name}(リーダー): 12時休憩（固定）`);
+        }
 
         // 残りの通常勤務者を指定配分で割り当て
         const otherNormalNurses = shuffle(normalNurses.filter(n => n.id !== mainLeader.id));
         
-        // 休憩枠の定義（リーダーの12時1人を除いた残り）
-        // 基本配分（遅出2人の場合、通常7人、リーダー除いて6人）
-        // 11時開始: 11時1人、13時2人、14時3人 = 6人分
-        // 12時開始: 13時3人、14時3人 = 6人分
+        // 休憩枠の定義
+        // 11時開始: 11時1人、12時1人(リーダー)、13時2人、14時3人 → 全体で1,1,2,3,2
+        // 12時開始: 12時1人(リーダー)、13時3人、14時3人 → 全体で1,3,3,2
+        // 遅出リーダーの場合: 12時1人を追加（リーダーが15時に回るため）
         let breakSlotQueue;
         if (breakStartTime === 11) {
-          breakSlotQueue = [2, 4, 4, 5, 5, 5]; // slotIdx: 2=11時, 4=13時, 5=14時
+          if (mainLeader.isLateStart) {
+            // 遅出リーダー: 11時1人、12時1人、13時2人、14時3人 = 7人分
+            breakSlotQueue = [2, 3, 4, 4, 5, 5, 5];
+          } else {
+            // 通常: 11時1人、13時2人、14時3人 = 6人分
+            breakSlotQueue = [2, 4, 4, 5, 5, 5];
+          }
         } else {
-          breakSlotQueue = [4, 4, 4, 5, 5, 5]; // slotIdx: 4=13時, 5=14時
+          if (mainLeader.isLateStart) {
+            // 遅出リーダー: 12時1人、13時3人、14時3人 = 7人分
+            breakSlotQueue = [3, 4, 4, 4, 5, 5, 5];
+          } else {
+            // 通常: 13時3人、14時3人 = 6人分
+            breakSlotQueue = [4, 4, 4, 5, 5, 5];
+          }
         }
         
-        // 遅出人数が2人でない場合、休憩枠を調整
+        // AM休の人が14時休憩に入るので、その分14時枠を減らす
+        const amLeaveCount = amLeaveNurses.length;
+        if (amLeaveCount > 0) {
+          // 14時枠（slotIdx=5）を後ろから削除
+          for (let i = 0; i < amLeaveCount; i++) {
+            const idx = breakSlotQueue.lastIndexOf(5);
+            if (idx !== -1) {
+              breakSlotQueue.splice(idx, 1);
+            }
+          }
+          console.log(`AM休${amLeaveCount}人のため、14時休憩枠を調整`);
+        }
+        
+        // 通常勤務者の人数と休憩枠を調整
         const normalCount = otherNormalNurses.length;
         if (normalCount > breakSlotQueue.length) {
           // 通常勤務者が多い場合、14時枠を追加
@@ -242,6 +321,10 @@
             breakSlotQueue.push(5); // 14時に追加
           }
           console.log(`通常勤務者${normalCount}人、14時枠を${extra}人追加`);
+        } else if (normalCount < breakSlotQueue.length) {
+          // 通常勤務者が少ない場合、後ろから削除
+          breakSlotQueue.length = normalCount;
+          console.log(`通常勤務者${normalCount}人、休憩枠を調整`);
         }
         
         otherNormalNurses.forEach((nurse, idx) => {
@@ -261,12 +344,11 @@
         console.log('休憩配分:', countBySlot);
 
         // === リーダー配置 ===
-        // リーダーは休憩時以外はリーダー固定
-        for (let i = 0; i < 8; i++) {
-          // 遅出の場合、9-10時は除外
+        // リーダーは10-16時のみ（9-10時と16-17時は不要）
+        for (let i = 1; i < 7; i++) { // slotIdx 1-6 = 10-16時
+          // 遅出の場合、10時から（slotIdx=1から）
           if (mainLeader.isLateStart && i === 0) continue;
-          // 時短の場合、16-17時は除外
-          if (mainLeader.isShortTime && i === 7) continue;
+          // 時短の場合、16時まで（slotIdx=6まで、7は除外だがループ対象外）
           
           if (localScheduleMap[mainLeader.id][i] === null) {
             localScheduleMap[mainLeader.id][i] = 'リーダー';
@@ -275,10 +357,11 @@
 
         // 代理リーダー配置（リーダー休憩中）
         // 時短でも代理リーダーは可能
-        const deputyLeaderCandidates = aNurses.filter(n => n.id !== mainLeader.id);
+        // AM休/PM休は除外
+        const deputyLeaderCandidates = aNurses.filter(n => n.id !== mainLeader.id && !n.leaveType);
         const leaderBreakIdx = breakAssignments[mainLeader.id];
         
-        // リーダー休憩時（12時）、他のA看護師で対応可能な人を探す
+        // リーダー休憩時（通常12時、遅出15時）、他のA看護師で対応可能な人を探す
         // ★ランダム性を持たせるためシャッフル
         const availableDeputies = shuffle(deputyLeaderCandidates.filter(n => 
           localScheduleMap[n.id][leaderBreakIdx] === null &&
@@ -344,7 +427,48 @@
           keizokuNurses.push(k2.id);
           console.log(`${k2.name}: 継続看護 12-15時`);
         } else {
-          errors.push('12-15時の継続看護を配置できません');
+          // 3時間連続で配置できない場合、2時間+1時間に分割
+          console.log('12-15時の3時間連続配置不可 → 2時間+1時間に分割');
+          
+          // 12-14時（2時間）を担当できる人を探す
+          const keizoku2aCandidates = shuffle(abNurses.filter(n => {
+            if (n.id === mainLeader.id) return false;
+            if (keizokuNurses.includes(n.id)) return false;
+            // 12-14時の2枠が空いているか
+            for (let i = 3; i <= 4; i++) {
+              if (localScheduleMap[n.id][i] !== null) return false;
+            }
+            return true;
+          }));
+          
+          if (keizoku2aCandidates.length > 0) {
+            const k2a = keizoku2aCandidates[0];
+            for (let i = 3; i <= 4; i++) {
+              localScheduleMap[k2a.id][i] = '継続看護';
+            }
+            keizokuNurses.push(k2a.id);
+            console.log(`${k2a.name}: 継続看護 12-14時（分割前半）`);
+            
+            // 14-15時（1時間）を担当できる人を探す
+            const keizoku2bCandidates = shuffle(abNurses.filter(n => {
+              if (n.id === mainLeader.id) return false;
+              if (keizokuNurses.includes(n.id)) return false;
+              // 14-15時の1枠が空いているか
+              if (localScheduleMap[n.id][5] !== null) return false;
+              return true;
+            }));
+            
+            if (keizoku2bCandidates.length > 0) {
+              const k2b = keizoku2bCandidates[0];
+              localScheduleMap[k2b.id][5] = '継続看護';
+              keizokuNurses.push(k2b.id);
+              console.log(`${k2b.name}: 継続看護 14-15時（分割後半）`);
+            } else {
+              errors.push('14-15時の継続看護（分割後半）を配置できません');
+            }
+          } else {
+            errors.push('12-15時の継続看護を配置できません（分割も不可）');
+          }
         }
 
         // === 穿刺配置 ===
@@ -528,8 +652,8 @@
 
       // セルクリック処理（入れ替え機能）
       const handleCellClick = (nurse, slotIdx, task) => {
-        // 休憩、休務、勤務時間外は入れ替え不可
-        if (task === '休憩' || task === '休務' || task === '-') {
+        // 休憩、休務、勤務時間外、AM休、PM休は入れ替え不可
+        if (task === '休憩' || task === '休務' || task === '-' || task === 'AM休' || task === 'PM休') {
           setSelectedCell(null);
           return;
         }
@@ -549,8 +673,8 @@
           // 2回目のクリック：入れ替え実行
           const targetTask = task;
           
-          // 休憩、休務、勤務時間外との入れ替えは不可
-          if (targetTask === '休憩' || targetTask === '休務' || targetTask === '-') {
+          // 休憩、休務、勤務時間外、AM休、PM休との入れ替えは不可
+          if (targetTask === '休憩' || targetTask === '休務' || targetTask === '-' || targetTask === 'AM休' || targetTask === 'PM休') {
             setSelectedCell(null);
             return;
           }
@@ -618,7 +742,7 @@
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-8 h-8 text-indigo-600" />
-                  <h1 className="text-2xl font-bold text-gray-800">看護師業務管理システム v2</h1>
+                  <h1 className="text-2xl font-bold text-gray-800">シフトナビ</h1>
                 </div>
                 <button
                   onClick={generateSchedule}
@@ -671,8 +795,12 @@
                     onChange={(e) => setMainLeaderId(parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
-                    {nurses.filter(n => n.type === 'A' && !n.isAbsent && !n.isShortTime).map(nurse => (
-                      <option key={nurse.id} value={nurse.id}>{nurse.name}</option>
+                    {nurses.filter(n => n.type === 'A' && !n.isAbsent && !n.leaveType).map(nurse => (
+                      <option key={nurse.id} value={nurse.id}>
+                        {nurse.name}
+                        {nurse.isLateStart ? '(遅出)' : ''}
+                        {nurse.isShortTime ? '(時短)' : ''}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -702,11 +830,14 @@
                     key={nurse.id} 
                     className={`p-2 rounded-lg border ${
                       nurse.isAbsent ? 'bg-gray-100 opacity-60' : 
-                      nurse.isLateStart ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                      nurse.isLateStart ? 'bg-blue-50 border-blue-300' : 
+                      nurse.leaveType === 'AM' ? 'bg-orange-50 border-orange-300' :
+                      nurse.leaveType === 'PM' ? 'bg-purple-50 border-purple-300' :
+                      'bg-white'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${
+                    <div className="flex items-center gap-1">
+                      <span className={`w-3 h-3 rounded-full flex-shrink-0 ${
                         nurse.type === 'A' ? 'bg-purple-500' : 
                         nurse.type === 'B' ? 'bg-blue-500' : 
                         'bg-green-500'
@@ -715,16 +846,16 @@
                         type="text"
                         value={nurse.name}
                         onChange={(e) => updateNurseName(nurse.id, e.target.value)}
-                        className="flex-1 px-2 py-1 border rounded text-sm"
+                        className="flex-1 px-2 py-1 border rounded text-sm min-w-0"
                         disabled={nurse.isAbsent}
                       />
                       {nurse.isShortTime && (
-                        <span className="px-1 py-0.5 bg-yellow-200 text-yellow-800 rounded text-xs">時短</span>
+                        <span className="px-1 py-0.5 bg-yellow-200 text-yellow-800 rounded text-xs flex-shrink-0">時短</span>
                       )}
                       {!nurse.isShortTime && !nurse.isAbsent && (
                         <button
                           onClick={() => toggleLateStart(nurse.id)}
-                          className={`px-2 py-1 rounded text-xs font-semibold ${
+                          className={`px-1.5 py-1 rounded text-xs font-semibold flex-shrink-0 ${
                             nurse.isLateStart 
                               ? 'bg-blue-500 text-white' 
                               : 'bg-gray-200 text-gray-600 hover:bg-blue-100'
@@ -733,9 +864,23 @@
                           遅出
                         </button>
                       )}
+                      {!nurse.isAbsent && (
+                        <button
+                          onClick={() => toggleLeaveType(nurse.id)}
+                          className={`px-1.5 py-1 rounded text-xs font-semibold flex-shrink-0 ${
+                            nurse.leaveType === 'AM' 
+                              ? 'bg-orange-500 text-white' 
+                              : nurse.leaveType === 'PM'
+                                ? 'bg-purple-500 text-white'
+                                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                          }`}
+                        >
+                          {nurse.leaveType === 'AM' ? 'AM休' : nurse.leaveType === 'PM' ? 'PM休' : '半休'}
+                        </button>
+                      )}
                       <button
                         onClick={() => toggleAbsent(nurse.id)}
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                        className={`px-1.5 py-1 rounded text-xs font-semibold flex-shrink-0 ${
                           nurse.isAbsent 
                             ? 'bg-green-500 text-white' 
                             : 'bg-orange-200 text-orange-700 hover:bg-orange-300'
@@ -783,6 +928,8 @@
                               {nurse.name}
                               {nurse.isShortTime && <span className="text-xs text-yellow-600">(時短)</span>}
                               {nurse.isLateStart && <span className="text-xs text-blue-600">(遅出)</span>}
+                              {nurse.leaveType === 'AM' && <span className="text-xs text-orange-600">(AM休)</span>}
+                              {nurse.leaveType === 'PM' && <span className="text-xs text-purple-600">(PM休)</span>}
                             </div>
                           </td>
                           {getNurseSchedule(nurse.id).map((task, slotIdx) => (
@@ -800,6 +947,8 @@
                                 task === '穿刺' ? 'bg-red-200 font-semibold' :
                                 task === '継続看護' ? 'bg-blue-200 font-semibold' :
                                 task === 'フロア' ? 'bg-gray-100' :
+                                task === 'AM休' ? 'bg-orange-100' :
+                                task === 'PM休' ? 'bg-purple-100' :
                                 task === '-' ? 'bg-gray-300' : ''
                               }`}
                             >
