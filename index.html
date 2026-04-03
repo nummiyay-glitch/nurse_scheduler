@@ -321,18 +321,21 @@
         let breakSlotQueue = [];
 
         if (mainLeader.isLateStart) {
-          // 遅出リーダー: slot6(15時)固定 → 12時(slot3)を他の人に開放
+          // 遅出リーダー: slot6(15時)固定 → 12時(slot3)は完全フリー、2人入れる
           if (breakStartTime === 11) {
             if (otherCount >= 1) breakSlotQueue.push(2); // 11時に1人
-            if (otherCount >= 2) breakSlotQueue.push(3); // 12時に1人
-            const rest = Math.max(0, otherCount - 2);
+            if (otherCount >= 2) breakSlotQueue.push(3); // 12時に1人目
+            if (otherCount >= 3) breakSlotQueue.push(3); // 12時に2人目
+            const rest = Math.max(0, otherCount - 3);
             const at13 = Math.floor(rest / 2);
             const at14 = rest - at13;
             for (let i = 0; i < at13; i++) breakSlotQueue.push(4);
             for (let i = 0; i < at14; i++) breakSlotQueue.push(5);
           } else {
-            if (otherCount >= 1) breakSlotQueue.push(3); // 12時に1人
-            const rest = Math.max(0, otherCount - 1);
+            // breakStartTime === 12: 12時に2人
+            if (otherCount >= 1) breakSlotQueue.push(3); // 12時に1人目
+            if (otherCount >= 2) breakSlotQueue.push(3); // 12時に2人目
+            const rest = Math.max(0, otherCount - 2);
             const at13 = Math.floor(rest / 2);
             const at14 = rest - at13;
             for (let i = 0; i < at13; i++) breakSlotQueue.push(4);
