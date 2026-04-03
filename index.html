@@ -313,17 +313,55 @@
 
         const otherNormalNurses = shuffle(normalNurses.filter(n => n.id !== mainLeader.id));
 
-        let breakSlotQueue;
-        if (breakStartTime === 11) {
-          breakSlotQueue = mainLeader.isLateStart
-            ? [2, 3, 4, 4, 5, 5, 5]
-            : [2, 4, 4, 5, 5, 5];
+        // =====================================================
+        // 動的休憩スロットキュー生成
+        // 目標: 12時台×2、13時台・14時台を均等 (2,3,3 / 2,2,3 etc.)
+        // =====================================================
+        const otherCount = otherNormalNurses.length;
+        let breakSlotQueue = [];
+
+        if (mainLeader.isLateStart) {
+          // 遅出リーダー: slot6(15時)固定 → 12時(slot3)を他の人に開放
+          if (breakStartTime === 11) {
+            if (otherCount >= 1) breakSlotQueue.push(2); // 11時に1人
+            if (otherCount >= 2) breakSlotQueue.push(3); // 12時に1人
+            const rest = Math.max(0, otherCount - 2);
+            const at13 = Math.floor(rest / 2);
+            const at14 = rest - at13;
+            for (let i = 0; i < at13; i++) breakSlotQueue.push(4);
+            for (let i = 0; i < at14; i++) breakSlotQueue.push(5);
+          } else {
+            if (otherCount >= 1) breakSlotQueue.push(3); // 12時に1人
+            const rest = Math.max(0, otherCount - 1);
+            const at13 = Math.floor(rest / 2);
+            const at14 = rest - at13;
+            for (let i = 0; i < at13; i++) breakSlotQueue.push(4);
+            for (let i = 0; i < at14; i++) breakSlotQueue.push(5);
+          }
         } else {
-          breakSlotQueue = mainLeader.isLateStart
-            ? [3, 4, 4, 4, 5, 5, 5]
-            : [4, 4, 4, 5, 5, 5];
+          // 通常リーダー: slot3(12時)固定 → othersの12時にもう1人追加して合計2人
+          if (breakStartTime === 11) {
+            if (otherCount >= 1) breakSlotQueue.push(2); // 11時に1人
+            if (otherCount >= 2) breakSlotQueue.push(3); // 12時にもう1人
+            const rest = Math.max(0, otherCount - 2);
+            const at13 = Math.floor(rest / 2);
+            const at14 = rest - at13;
+            for (let i = 0; i < at13; i++) breakSlotQueue.push(4);
+            for (let i = 0; i < at14; i++) breakSlotQueue.push(5);
+          } else {
+            // breakStartTime === 12
+            // 12時にもう1人（リーダーと同時刻OK）→ 合計12時×2
+            if (otherCount >= 1) breakSlotQueue.push(3);
+            // 残りを13時・14時に均等配分 → 2,3,3 / 2,2,3 など
+            const rest = Math.max(0, otherCount - 1);
+            const at13 = Math.floor(rest / 2);
+            const at14 = rest - at13;
+            for (let i = 0; i < at13; i++) breakSlotQueue.push(4);
+            for (let i = 0; i < at14; i++) breakSlotQueue.push(5);
+          }
         }
 
+        // AM休の人が14時休憩に入る分、14時枠を減らす
         const amLeaveCount = amLeaveNurses.length;
         if (amLeaveCount > 0) {
           for (let i = 0; i < amLeaveCount; i++) {
@@ -331,16 +369,6 @@
             if (idx !== -1) breakSlotQueue.splice(idx, 1);
           }
           console.log(`AM休${amLeaveCount}人のため、14時休憩枠を調整`);
-        }
-
-        const normalCount = otherNormalNurses.length;
-        if (normalCount > breakSlotQueue.length) {
-          const extra = normalCount - breakSlotQueue.length;
-          for (let i = 0; i < extra; i++) breakSlotQueue.push(5);
-          console.log(`通常勤務者${normalCount}人、14時枠を${extra}人追加`);
-        } else if (normalCount < breakSlotQueue.length) {
-          breakSlotQueue.length = normalCount;
-          console.log(`通常勤務者${normalCount}人、休憩枠を調整`);
         }
 
         otherNormalNurses.forEach((nurse, idx) => {
